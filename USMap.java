@@ -2,7 +2,7 @@
  *	Drawing a map of cities in the United States using StdDraw
  *
  *	@author Anthony He
- *	@since August 23, 2024
+ *	@since September 4, 2024
  */
 
 import java.util.Scanner;
@@ -31,11 +31,57 @@ public class USMap{
 	public void runProg(){
 		
 		Scanner fileIn = FileUtils.openToRead("cities.txt");
-		String lineInfo;
-		int x[] = new in
+		Scanner bigCities = FileUtils.openToRead("bigCities.txt");
+		double latitude, longitude;
+		String[] nameAndInitial = new String[1200];
+		double[] lat = new double[1200], lon = new double[1200];
+		String nAndI, cityName;
+		int cIndex = 0, population, counterTopTen = 0;
 		
+		nameAndInitial[0] = "";
+		
+		setupCanvas();
+		StdDraw.setPenRadius(0.006);
+		StdDraw.setPenColor(StdDraw.GRAY);
+		
+		//color in all cities first
 		while(fileIn.hasNextLine()){
-			System.out.println(fileIn.nextLine());
+			latitude = fileIn.nextDouble();
+			longitude = fileIn.nextDouble();
+			nAndI = fileIn.nextLine().trim();
+			if(!nameAndInitial[Math.max(cIndex-1, 0)].equals(nAndI)){
+				nameAndInitial[cIndex] = nAndI;
+				lat[cIndex] = latitude;
+				lon[cIndex] = longitude;
+				cIndex++;
+			}
+			StdDraw.point(longitude, latitude);
+		}
+		//color in big cities in blue/red
+		while(bigCities.hasNextLine()){
+			bigCities.nextInt();
+			cityName = bigCities.nextLine();
+			//find population using parseInt
+			population = Integer.parseInt(cityName.substring(cityName.lastIndexOf(" ")).trim());
+			//find city name and initials
+			cityName = cityName.substring(0,cityName.lastIndexOf(" ")).trim();
+			
+			//determine color of the big dot.
+			if(counterTopTen >= 10){
+				StdDraw.setPenColor(StdDraw.BLUE);
+			}
+			else{
+				StdDraw.setPenColor(StdDraw.RED);
+				counterTopTen++;
+			}
+			
+			//check for city location
+			for(int i=0;i<cIndex; i++){
+				if(cityName.equalsIgnoreCase(nameAndInitial[i])){
+					StdDraw.setPenRadius(0.6 * (Math.sqrt(population)/18500));
+					StdDraw.point(lon[i], lat[i]);
+				}
+			}
 		}
 		
 	}
